@@ -1,12 +1,12 @@
 import * as bcrypt from "bcryptjs";
-import { ResolverMap } from "./types/graphql-utils";
-import { GQL } from "./types/schema";
-import { Users } from "./entity/User";
+import { ResolverMap } from "../../types/graphql-utils";
+import { GQL } from "../../types/schema";
+import { Users } from "../../entity/User";
 
 export const resolvers: ResolverMap = {
+  // weird bug when merging schemas if no query is provided
   Query: {
-    hello: (_: any, { name }: GQL.IHelloOnQueryArguments) =>
-      `Hello ${name || "World"}`
+    bye: () => "bye"
   },
   Mutation: {
     register: async (
