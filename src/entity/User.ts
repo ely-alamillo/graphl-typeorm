@@ -1,15 +1,8 @@
-import {
-  Entity,
-  PrimaryColumn,
-  Column,
-  BeforeInsert,
-  BaseEntity
-} from "typeorm";
-import * as uuidv4 from "uuid/v4";
+import { Entity, Column, BaseEntity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Users extends BaseEntity {
-  @PrimaryColumn("uuid")
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   // sets type in db and options
@@ -20,9 +13,4 @@ export class Users extends BaseEntity {
   // will be hashed so text is fine
   @Column("text")
   password: string;
-
-  @BeforeInsert()
-  addId() {
-    this.id = uuidv4();
-  }
 }
