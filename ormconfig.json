@@ -8,6 +8,7 @@
     "password": "",
     "database": "graphql-typeorm",
     "synchronize": true,
+    "dropSchema": true,
     "logging": false,
     "entities": ["src/entity/**/*.ts"],
     "migrations": ["src/migration/**/*.ts"],
