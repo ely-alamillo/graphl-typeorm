@@ -1,17 +1,15 @@
 import { request } from "graphql-request";
 import { Users } from "../../entity/User";
-import { startServer } from "../../startServer";
 import {
   duplicateEmail,
   emailNotLongEnough,
   invalidEmail,
   passwordNotLongEnough
 } from "./errorMsg";
+import { createTypeormConnection } from "../../utils/createTypeormConnection";
 
 const email = "test@test.com";
 const password = "password";
-
-let getHost = () => "";
 
 const mutation = (userEmail: string, userPass: string) => {
   return `
@@ -25,14 +23,15 @@ mutation {
 };
 
 beforeAll(async () => {
-  const app = await startServer();
-  const { port } = app.address() as any;
-  getHost = () => `http://127.0.0.1:${port}`;
+  await createTypeormConnection();
 });
 
 describe("Register user", async () => {
   it("It register user successfully.", async () => {
-    const response = await request(getHost(), mutation(email, password));
+    const response = await request(
+      process.env.TEST_HOST as string,
+      mutation(email, password)
+    );
     expect(response).toEqual({ register: null });
 
     const users = await Users.find({ where: { email } });
@@ -44,7 +43,10 @@ describe("Register user", async () => {
   });
 
   it("It fails to register user if email already exists.", async () => {
-    const response: any = await request(getHost(), mutation(email, password));
+    const response: any = await request(
+      process.env.TEST_HOST as string,
+      mutation(email, password)
+    );
     expect(response.register).toHaveLength(1);
     expect(response.register[0]).toEqual({
       path: "email",
@@ -53,7 +55,10 @@ describe("Register user", async () => {
   });
 
   it("It fails to register user with bad email.", async () => {
-    const response: any = await request(getHost(), mutation("on", password));
+    const response: any = await request(
+      process.env.TEST_HOST as string,
+      mutation("on", password)
+    );
     expect(response.register).toHaveLength(2);
     expect(response).toEqual({
       register: [
@@ -67,7 +72,10 @@ describe("Register user", async () => {
   });
 
   it("It fails to register user with bad password.", async () => {
-    const response: any = await request(getHost(), mutation(email, "pa"));
+    const response: any = await request(
+      process.env.TEST_HOST as string,
+      mutation(email, "pa")
+    );
     expect(response.register).toHaveLength(1);
     expect(response).toEqual({
       register: [{ path: "password", message: passwordNotLongEnough }]
@@ -75,7 +83,10 @@ describe("Register user", async () => {
   });
 
   it("It fails to register user with bad password and bad email.", async () => {
-    const response: any = await request(getHost(), mutation("em", "pa"));
+    const response: any = await request(
+      process.env.TEST_HOST as string,
+      mutation("em", "pa")
+    );
     expect(response.register).toHaveLength(3);
     expect(response).toEqual({
       register: [
