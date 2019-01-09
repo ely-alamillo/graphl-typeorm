@@ -13,4 +13,6 @@ export class Users extends BaseEntity {
   // will be hashed so text is fine
   @Column("text")
   password: string;
+
+  @Column("boolean", { default: false }) confirmed: boolean;
 }

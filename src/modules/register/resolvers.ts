@@ -10,6 +10,7 @@ import {
   invalidEmail,
   passwordNotLongEnough
 } from "./errorMsg";
+import { createConfirmLink } from "../../utils/createConfirmLink";
 
 const schema = yup.object().shape({
   email: yup
@@ -29,7 +30,11 @@ export const resolvers: ResolverMap = {
     bye: () => "bye"
   },
   Mutation: {
-    register: async (_, args: GQL.IRegisterOnMutationArguments) => {
+    register: async (
+      _,
+      args: GQL.IRegisterOnMutationArguments,
+      { redis, url }
+    ) => {
       try {
         await schema.validate(args, { abortEarly: false });
       } catch (err) {
@@ -49,6 +54,8 @@ export const resolvers: ResolverMap = {
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = Users.create({ email, password: hashedPassword });
       await user.save();
+
+      const link = await createConfirmLink(url, user.id, redis);
       return null;
     }
   }
