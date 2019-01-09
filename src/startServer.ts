@@ -29,11 +29,12 @@ export const startServer = async () => {
     })
   });
 
-  server.express.get("confirm/:id", async (req, res) => {
+  server.express.get("/confirm/:id", async (req, res) => {
     const { id } = req.params;
     const userId = await redis.get(id);
     if (userId) {
       await Users.update({ id: userId as string }, { confirmed: true });
+      await redis.del(id);
       res.send("ok");
     } else {
       res.send("invalid");
