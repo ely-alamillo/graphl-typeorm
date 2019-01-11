@@ -5,7 +5,7 @@ import { createTypeormConnection } from "./createTypeormConnection";
 import { Users } from "../entity/User";
 
 let userId = "";
-const redis = new Redis();
+const testRedis = new Redis();
 
 beforeAll(async () => {
   await createTypeormConnection();
@@ -21,9 +21,12 @@ describe("Email link works", async () => {
     const url = await createConfirmLink(
       process.env.TEST_HOST as string,
       userId,
-      redis
+      testRedis
     );
+
+    console.log({ url });
     const res = await fetch(url);
+    console.log({ res });
 
     const text = await res.text();
     expect(text).toEqual("ok");
@@ -33,7 +36,7 @@ describe("Email link works", async () => {
 
     const chunks = url.split("/");
     const key = chunks[chunks.length - 1];
-    const value = await redis.get(key);
+    const value = await testRedis.get(key);
     expect(value).toBeNull();
   });
 });

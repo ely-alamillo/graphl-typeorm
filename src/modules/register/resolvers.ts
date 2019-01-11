@@ -9,9 +9,9 @@ import {
   invalidEmail,
   passwordNotLongEnough
 } from "./errorMsg";
+import { GQL } from "../../types/schema";
 import { sendEmail } from "../../utils/sendEmail";
 import { createConfirmLink } from "../../utils/createConfirmLink";
-import { GQL } from "../../types/schema";
 
 const schema = yup.object().shape({
   email: yup
@@ -55,7 +55,6 @@ export const resolvers: ResolverMap = {
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = Users.create({ email, password: hashedPassword });
       await user.save();
-      console.log({ user, id: user.id });
 
       if (process.env.NODE_ENV !== "test") {
         await sendEmail(email, await createConfirmLink(url, user.id, redis));
