@@ -8,5 +8,5 @@ export const createConfirmLink = async (
 ) => {
   const id = v4();
   await redis.set(id, userId, "ex", 60 * 60 * 24);
-  return `${url}/confirm/${id}`;
+  return `${url}/confirm/${userId}`;
 };
