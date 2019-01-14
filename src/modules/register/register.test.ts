@@ -8,7 +8,7 @@ import {
 } from "./errorMsg";
 import { createTypeormConnection } from "../../utils/createTypeormConnection";
 
-const email = "test@test.com";
+const email = "test1@test.com";
 const password = "password";
 
 const mutation = (userEmail: string, userPass: string) => {
