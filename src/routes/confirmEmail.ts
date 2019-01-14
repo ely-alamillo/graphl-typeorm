@@ -6,7 +6,6 @@ export const confirmEmail = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   const userId = await redis.get(id);
-  console.log({ userId, id });
   if (userId) {
     await Users.update({ id: id as string }, { confirmed: true });
     await redis.del(id);

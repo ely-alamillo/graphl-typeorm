@@ -24,9 +24,7 @@ describe("Email link works", async () => {
       testRedis
     );
 
-    console.log({ url });
     const res = await fetch(url);
-    console.log({ res });
 
     const text = await res.text();
     expect(text).toEqual("ok");

@@ -48,7 +48,7 @@ beforeAll(async () => {
   //   await createTypeormConnection();
 });
 
-describe.skip("Login user", () => {
+describe("Login user", () => {
   it("It fails to login with invalid email", async () => {
     await loginError("fail@fail.com", "password", invalidLogin);
   });
@@ -62,7 +62,7 @@ describe.skip("Login user", () => {
 
     await Users.update({ email }, { confirmed: true });
 
-    // await loginError(email, "fail", invalidLogin);
+    await loginError(email, "fail", invalidLogin);
   });
 
   //   it("It fails to login with invalid password", async () => {
