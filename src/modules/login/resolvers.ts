@@ -1,12 +1,11 @@
 import * as bcrypt from "bcryptjs";
 
 import { ResolverMap } from "../../types/graphql-utils";
-import { Users } from "../../entity/User";
+import { User } from "../../entity/User";
+import { invalidLogin, confirmEmailError } from "./errorMessages";
 import { GQL } from "../../types/schema";
-import { invalidLogin } from "./errorMsg";
-import { confirmEmail } from "../../routes/confirmEmail";
 
-const invalidLoginRes = [
+const errorResponse = [
   {
     path: "email",
     message: invalidLogin
@@ -14,7 +13,6 @@ const invalidLoginRes = [
 ];
 
 export const resolvers: ResolverMap = {
-  // weird bug when merging schemas if no query is provided
   Query: {
     bye2: () => "bye"
   },
@@ -24,29 +22,30 @@ export const resolvers: ResolverMap = {
       { email, password }: GQL.ILoginOnMutationArguments,
       { session }
     ) => {
-      const user = await Users.findOne({ where: { email } });
+      const user = await User.findOne({ where: { email } });
 
       if (!user) {
-        return invalidLoginRes;
+        return errorResponse;
       }
 
       if (!user.confirmed) {
         return [
           {
             path: "email",
-            message: confirmEmail
+            message: confirmEmailError
           }
         ];
       }
 
       const valid = await bcrypt.compare(password, user.password);
+
       if (!valid) {
-        return invalidLoginRes;
+        return errorResponse;
       }
 
-      // login successful
-
+      // login sucessful
       session.userId = user.id;
+      console.log({ session });
 
       return null;
     }

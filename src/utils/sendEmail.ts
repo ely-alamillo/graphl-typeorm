@@ -1,6 +1,5 @@
 import * as SparkPost from "sparkpost";
-
-const client = new SparkPost("test");
+const client = new SparkPost(process.env.SPARKPOST_API_KEY);
 
 export const sendEmail = async (recipient: string, url: string) => {
   const response = await client.transmissions.send({
@@ -8,19 +7,16 @@ export const sendEmail = async (recipient: string, url: string) => {
       sandbox: true
     },
     content: {
-      from: "testing@ely.com",
+      from: "testing@sparkpostbox.com",
       subject: "Confirm Email",
-      html: `
-      <html>
+      html: `<html>
         <body>
-            <p>Testing SparkPost - the world's most awesomest email service!
-            </p>
-            <a href="${url}"> Confirm email <a/>
+        <p>Testing SparkPost - the world's most awesomest email service!</p>
+        <a href="${url}">confirm email</a>
         </body>
-      </html>`
+        </html>`
     },
     recipients: [{ address: recipient }]
   });
-
-  console.log({ response });
+  console.log(response);
 };

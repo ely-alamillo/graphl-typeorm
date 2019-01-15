@@ -1,16 +1,17 @@
 import * as yup from "yup";
+
 import { ResolverMap } from "../../types/graphql-utils";
-import { Users } from "../../entity/User";
+import { User } from "../../entity/User";
 import { formatYupError } from "../../utils/formatYupError";
 import {
   duplicateEmail,
   emailNotLongEnough,
   invalidEmail,
   passwordNotLongEnough
-} from "./errorMsg";
+} from "./errorMessages";
 import { GQL } from "../../types/schema";
+import { createConfirmEmailLink } from "../../utils/createConfirmEmailLink";
 import { sendEmail } from "../../utils/sendEmail";
-import { createConfirmLink } from "../../utils/createConfirmLink";
 
 const schema = yup.object().shape({
   email: yup
@@ -25,7 +26,6 @@ const schema = yup.object().shape({
 });
 
 export const resolvers: ResolverMap = {
-  // weird bug when merging schemas if no query is provided
   Query: {
     bye: () => "bye"
   },
@@ -40,22 +40,35 @@ export const resolvers: ResolverMap = {
       } catch (err) {
         return formatYupError(err);
       }
+
       const { email, password } = args;
 
-      const userAlreadyExists = await Users.findOne({
+      const userAlreadyExists = await User.findOne({
         where: { email },
         select: ["id"]
       });
 
       if (userAlreadyExists) {
-        return [{ path: "email", message: duplicateEmail }];
+        return [
+          {
+            path: "email",
+            message: duplicateEmail
+          }
+        ];
       }
 
-      const user = Users.create({ email, password });
+      const user = User.create({
+        email,
+        password
+      });
+
       await user.save();
 
       if (process.env.NODE_ENV !== "test") {
-        await sendEmail(email, await createConfirmLink(url, user.id, redis));
+        await sendEmail(
+          email,
+          await createConfirmEmailLink(url, user.id, redis)
+        );
       }
 
       return null;

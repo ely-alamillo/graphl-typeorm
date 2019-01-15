@@ -4,12 +4,12 @@ export default async (
   resolver: Resolver,
   parent: any,
   args: any,
-  ctx: any,
+  context: any,
   info: any
 ) => {
   // middleware
-  const result = await resolver(parent, args, ctx, info);
-  // afterwards
+  const result = await resolver(parent, args, context, info);
+  // afterware
 
   return result;
 };

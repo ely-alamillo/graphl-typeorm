@@ -1,3 +1,1 @@
-# Graphql Typeorm
-
-# Install Instructions
+# graphql-typeorm

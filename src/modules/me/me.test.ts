@@ -1,34 +1,16 @@
 import axios from "axios";
+import { createTypeormConn } from "../../utils/createTypeormConn";
+import { User } from "../../entity/User";
 import { Connection } from "typeorm";
-import { createTypeormConnection } from "../../utils/createTypeormConnection";
-import { Users } from "../../entity/User";
 
-let conn: Connection;
-const email = "john@testttt.com";
-const password = "password";
 let userId: string;
-
-const loginMutation = (userEmail: string, userPass: string) => {
-  return `
-mutation {
-    login(email: "${userEmail}", password: "${userPass}") {
-      path
-      message
-    }
-}
-`;
-};
-
-const meQuery = `
-    me {
-        id
-        email
-    }
-`;
+let conn: Connection;
+const email = "bob5@bob.com";
+const password = "jlkajoioiqwe";
 
 beforeAll(async () => {
-  conn = await createTypeormConnection();
-  const user = await Users.create({
+  conn = await createTypeormConn();
+  const user = await User.create({
     email,
     password,
     confirmed: true
@@ -40,10 +22,30 @@ afterAll(async () => {
   conn.close();
 });
 
-describe("Me Query", () => {
-  //   test("Can't get user if not logged in", async () => {});
-  console.log({ testhos: process.env.TEST_HOST });
-  test("Get current user", async () => {
+const loginMutation = (e: string, p: string) => `
+mutation {
+  login(email: "${e}", password: "${p}") {
+    path
+    message
+  }
+}
+`;
+
+const meQuery = `
+{
+  me {
+    id
+    email
+  }
+}
+`;
+
+describe("me", () => {
+  // test("can't get user if not logged in", async () => {
+  // later
+  // });
+
+  test("get current user", async () => {
     await axios.post(
       process.env.TEST_HOST as string,
       {
@@ -54,7 +56,7 @@ describe("Me Query", () => {
       }
     );
 
-    const res2 = await axios.post(
+    const response = await axios.post(
       process.env.TEST_HOST as string,
       {
         query: meQuery
@@ -64,7 +66,7 @@ describe("Me Query", () => {
       }
     );
 
-    expect(res2.data.data.me.email).toEqual({
+    expect(response.data.data).toEqual({
       me: {
         id: userId,
         email

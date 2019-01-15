@@ -1,8 +1,7 @@
 import fetch from "node-fetch";
 
-it("It fails to confirm on bad id and responds with 'invalid'", async () => {
-  const res = await fetch(`${process.env.TEST_HOST}/confirm/${1234}`);
-
-  const text = await res.text();
+test("sends invalid back if bad id sent", async () => {
+  const response = await fetch(`${process.env.TEST_HOST}/confirm/12083`);
+  const text = await response.text();
   expect(text).toEqual("invalid");
 });

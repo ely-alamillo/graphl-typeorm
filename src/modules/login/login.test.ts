@@ -1,77 +1,76 @@
 import { request } from "graphql-request";
-import { invalidLogin, confirmEmail } from "./errorMsg";
-import { Users } from "../../entity/User";
-import { createTypeormConnection } from "../../utils/createTypeormConnection";
+import { invalidLogin, confirmEmailError } from "./errorMessages";
+import { User } from "../../entity/User";
+import { createTypeormConn } from "../../utils/createTypeormConn";
 import { Connection } from "typeorm";
 
-const email = "test@test.com";
-const password = "password";
+const email = "tom@bob.com";
+const password = "jalksdf";
 
-const registerMutation = (userEmail: string, userPass: string) => {
-  return `
+const registerMutation = (e: string, p: string) => `
 mutation {
-    register(email: "${userEmail}", password: "${userPass}") {
-      path
-      message
-    }
+  register(email: "${e}", password: "${p}") {
+    path
+    message
+  }
 }
 `;
-};
 
-const loginMutation = (userEmail: string, userPass: string) => {
-  return `
+const loginMutation = (e: string, p: string) => `
 mutation {
-    login(email: "${userEmail}", password: "${userPass}") {
-      path
-      message
-    }
+  login(email: "${e}", password: "${p}") {
+    path
+    message
+  }
 }
 `;
-};
 
-const loginError = async (e: string, p: string, msg: string) => {
-  const res = await request(
+let conn: Connection;
+beforeAll(async () => {
+  conn = await createTypeormConn();
+});
+afterAll(async () => {
+  conn.close();
+});
+
+const loginExpectError = async (e: string, p: string, errMsg: string) => {
+  const response = await request(
     process.env.TEST_HOST as string,
     loginMutation(e, p)
   );
 
-  expect(res).toEqual({
+  expect(response).toEqual({
     login: [
       {
         path: "email",
-        message: msg
+        message: errMsg
       }
     ]
   });
 };
 
-let conn: Connection;
-beforeAll(async () => {
-  conn = await createTypeormConnection();
-});
-
-afterAll(async () => {
-  conn.close();
-});
-
-describe("Login user", () => {
-  it("It fails to login with invalid email", async () => {
-    await loginError("fail@fail.com", "password", invalidLogin);
+describe("login", () => {
+  test("email not found send back error", async () => {
+    await loginExpectError("bob@bob.com", "whatever", invalidLogin);
   });
 
-  it("It fails to login if email has not been confirmed", async () => {
+  test("email not confirmed", async () => {
     await request(
       process.env.TEST_HOST as string,
       registerMutation(email, password)
     );
-    await loginError(email, password, confirmEmail);
 
-    await Users.update({ email }, { confirmed: true });
+    await loginExpectError(email, password, confirmEmailError);
 
-    await loginError(email, "fail", invalidLogin);
+    await User.update({ email }, { confirmed: true });
+
+    await loginExpectError(email, "aslkdfjaksdljf", invalidLogin);
+
+    const response = await request(
+      process.env.TEST_HOST as string,
+      loginMutation(email, password)
+    );
+
+    expect(response).toEqual({ login: null });
   });
-
-  //   it("It fails to login with invalid password", async () => {
-  //     await loginError(email, "fail", invalidLogin);
-  //   });
 });
