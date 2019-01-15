@@ -45,7 +45,6 @@ export const resolvers: ResolverMap = {
 
       // login sucessful
       session.userId = user.id;
-      console.log({ session });
 
       return null;
     }

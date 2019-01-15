@@ -1,4 +1,5 @@
 import { Redis } from "ioredis";
+import { Request } from "express";
 
 export interface Session {
   userId?: string;
