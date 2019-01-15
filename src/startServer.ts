@@ -3,6 +3,7 @@ import "dotenv/config";
 import { GraphQLServer } from "graphql-yoga";
 import * as session from "express-session";
 import * as connectRedis from "connect-redis";
+import * as cors from "cors";
 
 import { redis } from "./redis";
 import { createTypeormConn } from "./utils/createTypeormConn";
@@ -39,19 +40,20 @@ export const startServer = async () => {
     })
   );
 
-  const cors = {
-    origin: "http://localhost:4000",
+  const corsOptions = {
+    origin: true,
     methods: "GET, HEAD, PUT, PATCH, POST, DELETE",
     preflightContinue: true,
     optionsSuccessStatus: 204,
     credentials: true // enable set cookie
   };
 
+  server.express.use(cors(corsOptions));
+
   server.express.get("/confirm/:id", confirmEmail);
 
   await createTypeormConn();
   const app = await server.start({
-    cors,
     port: process.env.NODE_ENV === "test" ? 0 : 4000
   });
   console.log("Server is running on localhost:4000");

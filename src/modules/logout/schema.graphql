@@ -1,0 +1,7 @@
+type Query {
+  mock: String
+}
+
+type Mutation {
+  logout: Boolean
+}
